@@ -1,0 +1,2 @@
+string warehouse_obj_class
+decenter_msgs/DetectionDetails detection_details
