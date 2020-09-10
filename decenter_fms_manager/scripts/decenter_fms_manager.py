@@ -21,6 +21,11 @@ class DecenterFMSManager(RComponent):
         """Gets params from param server"""
         RComponent.rosReadParams(self)
 
+        self.node_selected_param = rospy.get_param('node_selected', default = "6")
+        self.node_selected = []
+        self.node_selected.append(self.node_selected_param)
+        print(self.node_selected)
+    
     def rosSetup(self):
 
         """Creates and inits ROS components"""
@@ -51,7 +56,6 @@ class DecenterFMSManager(RComponent):
             0 : if it's performed successfully
             -1: if there's any problem or the component is running
         """
-
         return RComponent.shutdown(self)
 
     def switchToState(self, new_state):
@@ -97,31 +101,23 @@ class DecenterFMSManager(RComponent):
                 'Robot Detected !'
             )
 
-            #so far the node to disable is hardcoded [node 6]
-            self.disable_node(6)
+            #so far the node to disable is hardcoded 
+            self.disable_node(self.node_selected)
             self.get_current_mission(msg.metadata.robot_id)
             self.cancel_mission(msg.metadata.robot_id)
             self.insert_last_mission()
             # TODO: do we need to wait here?
             time.sleep(0.5)
-            self.enable_node(6)
+            self.enable_node(self.node_selected)
 
             return
 
         elif object_type == 'others':
+            
+            rospy.loginfo('Other thing Detected')
 
-            if len(msg.objects[0].detection_details) <= 0:
-                rospy.loginfo(
-                    'Other thing Detected'
-                )
-            else:
-                rospy.loginfo(
-                    'Other thing Detected :: %s! '%msg.objects[0].detection_details.object_class
-                )
-            return
-
-            #so far the node to disable is hardcoded [node 6]
-            self.disable_node(6)
+            #so far the node to disable is hardcoded
+            self.disable_node(self.node_selected)
             self.get_current_mission(msg.metadata.robot_id)
             self.cancel_mission(msg.metadata.robot_id)
             self.insert_last_mission()
