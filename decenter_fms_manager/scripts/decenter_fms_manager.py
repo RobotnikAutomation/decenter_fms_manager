@@ -101,26 +101,32 @@ class DecenterFMSManager(RComponent):
                 'Robot Detected !'
             )
 
-            #so far the node to disable is hardcoded 
-            self.disable_node(self.node_selected)
-            self.get_current_mission(msg.metadata.robot_id)
-            self.cancel_mission(msg.metadata.robot_id)
-            self.insert_last_mission()
-            # TODO: do we need to wait here?
-            time.sleep(0.5)
-            self.enable_node(self.node_selected)
-
+            #so far the node to disable is hardcoded but parametrized
+            if self.disable_node(self.node_selected):
+                if self.get_current_mission(msg.metadata.robot_id):
+                    if self.cancel_mission(msg.metadata.robot_id):
+                        if self.insert_last_mission():
+                            if self.wait_until_robot_takes_new_mission(msg.metadata.robot_id):
+                                if self.enable_node(self.node_selected):
+                                    rospy.loginfo('Succeed')
+                                    return
+            rospy.logerr('Something went wrong')
             return
 
         elif object_type == 'others':
             
             rospy.loginfo('Other thing Detected')
 
-            #so far the node to disable is hardcoded
-            self.disable_node(self.node_selected)
-            self.get_current_mission(msg.metadata.robot_id)
-            self.cancel_mission(msg.metadata.robot_id)
-            self.insert_last_mission()
+            #so far the node to disable is hardcoded but parametrized
+            if self.disable_node(self.node_selected):
+                if self.get_current_mission(msg.metadata.robot_id):
+                    if self.cancel_mission(msg.metadata.robot_id):
+                        if self.insert_last_mission():
+                            rospy.loginfo('Succeed')
+                            return
+
+            rospy.logerr('Something went wrong')
+            return
 
         else:
             rospy.logwarn(
@@ -148,13 +154,13 @@ class DecenterFMSManager(RComponent):
             rospy.logerr(
                 "disable_node service call failed: %s"%e
             )
-            return
+            return False
 
         rospy.logdebug(
             'Received response from service:%s'%response
         )
 
-        return
+        return True
 
     def get_current_mission(self, robot_id):
 
@@ -175,7 +181,7 @@ class DecenterFMSManager(RComponent):
             rospy.logerr(
                 "get_current_mission service call failed: %s"%e
             )
-            return
+            return False
 
         rospy.logdebug(
             'Received response from service:%s'%response
@@ -186,11 +192,11 @@ class DecenterFMSManager(RComponent):
             rospy.logwarn(
                 'Robot %s has no missions assigned'%robot_id
             )
-            return
+            return False
         #save mission parameters
         self.last_mission = response.missions[0]
 
-        return
+        return True
 
     def cancel_mission(self, robot_id):
 
@@ -210,13 +216,13 @@ class DecenterFMSManager(RComponent):
             rospy.logerr(
                 "cancel_mission service call failed: %s"%e
             )
-            return
+            return False
 
         rospy.logdebug(
             'Received response from service:%s'%response
         )
 
-        return
+        return True
 
     def insert_last_mission(self):
 
@@ -226,6 +232,7 @@ class DecenterFMSManager(RComponent):
             rospy.logerr(
                 'Call to insert last mission with any last mission saved'
             )
+            return False
 
         try:
             insert_mission = rospy.ServiceProxy(
@@ -239,13 +246,13 @@ class DecenterFMSManager(RComponent):
             rospy.logerr(
                 "insert_last_mission service call failed: %s"%e
             )
-            return
+            return False
 
         rospy.logdebug(
             'Received response from insert_mission_service:%s'%response
         )
 
-        return
+        return True
 
     def enable_node(self, node):
 
@@ -253,9 +260,27 @@ class DecenterFMSManager(RComponent):
             'Enabling the node %s again'%node
         )
 
+        try:
+            disable_node = rospy.ServiceProxy(
+                '/robotnik_fms_routes_node/disable_node',
+                DisableNode
+            )
+            disable_node_srv_msg = DisableNodeRequest()
+            disable_node_srv_msg.node_id = node
+            disable_node_srv_msg.disable = False
+            response = disable_node(disable_node_srv_msg)
 
+        except rospy.ServiceException as e:
+            rospy.logerr(
+                "disable_node service call failed: %s"%e
+            )
+            return False
 
-        return
+        rospy.logdebug(
+            'Received response from service:%s'%response
+        )
+
+        return True
 
     def send_alert(self, robot_id):
 
@@ -276,7 +301,44 @@ class DecenterFMSManager(RComponent):
         #rospy.logdebug('Received response from send_alert_service:%s'%response)
 
 
-        return
+        return True
 
+    def wait_until_robot_takes_new_mission(self, robot_id):
 
+        rospy.loginfo(
+            'Waiting until robot takes new mission %s'%robot_id
+        )
+
+        get_mission = rospy.ServiceProxy(
+            '/robotnik_fms_ddbb_manager/Missions/get',
+            GetMissions
+        )
+
+        tries = 10
+
+        get_mission_srv_msg = GetMissionsRequest()
+        get_mission_srv_msg.id = 0
+        get_mission_srv_msg.robot_id = robot_id
+
+        response = GetMissionsResponse()
+
+        while(len(response.missions) <= 0 and tries > 0):
+
+            try:            
+                response = get_mission(get_mission_srv_msg)
+            except rospy.ServiceException as e:
+                rospy.logerr(
+                    "robot_takes_new_mission service call failed: %s"%e
+                )
+            rospy.logdebug(
+                'Received response from service:%s'%response
+            )
+
+            time.sleep(1)
+            tries = tries -1
+        
+        if tries <= 0:
+            return False
+        else:
+            return True
 
