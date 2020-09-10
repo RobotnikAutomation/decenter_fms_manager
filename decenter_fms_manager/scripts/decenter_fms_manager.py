@@ -13,17 +13,17 @@ class DecenterFMSManager(RComponent):
     def __init__(self):
 
         RComponent.__init__(self)
-        
+
         self.last_mission = []
 
     def rosReadParams(self):
 
         """Gets params from param server"""
         RComponent.rosReadParams(self)
-    
+
     def rosSetup(self):
 
-        """Creates and inits ROS components"""        
+        """Creates and inits ROS components"""
         RComponent.rosSetup(self)
 
         self.topic_sub = rospy.Subscriber('/decenter_fms_manager/object_detector_mqtt_msg', ObjectDetector, self.object_detector_cb, queue_size = 10)
@@ -37,7 +37,7 @@ class DecenterFMSManager(RComponent):
 
     def readyState(self):
 
-        """Actions performed in ready state"""                
+        """Actions performed in ready state"""
 
     def shutdown(self):
 
@@ -51,7 +51,7 @@ class DecenterFMSManager(RComponent):
 
     def switchToState(self, new_state):
 
-        """Performs the change of state"""        
+        """Performs the change of state"""
         return RComponent.switchToState(self, new_state)
 
     def object_detector_cb(self, msg):
@@ -61,9 +61,9 @@ class DecenterFMSManager(RComponent):
         rospy.logdebug('object_detector_cb received:: %s' % msg)
 
         #if there are not objects return
-        if len(msg.objects) <= 0: 
+        if len(msg.objects) <= 0:
             rospy.logwarn('object_detector_cb::objects is empty')
-            return        
+            return
 
         #so far we just take the first object detected
         object_type = msg.objects[0].warehouse_obj_class
@@ -112,7 +112,7 @@ class DecenterFMSManager(RComponent):
             return
 
     def disable_node(self, node):
-        
+
         rospy.loginfo('Disabling node:%s'%node)
 
         try:
@@ -121,7 +121,7 @@ class DecenterFMSManager(RComponent):
             disable_node_srv_msg.node_id = node
             disable_node_srv_msg.disable = True
             response = disable_node(disable_node_srv_msg)
-            
+
         except rospy.ServiceException as e:
             rospy.logerr("disable_node service call failed: %s"%e)
             return
@@ -144,10 +144,10 @@ class DecenterFMSManager(RComponent):
             rospy.logerr("get_current_mission service call failed: %s"%e)
             return
 
-        rospy.logdebug('Received response from service:%s'%response)        
+        rospy.logdebug('Received response from service:%s'%response)
 
         #check robot has missions
-        if len(response.missions) <= 0: 
+        if len(response.missions) <= 0:
             rospy.logwarn('Robot %s has no missions assigned'%robot_id)
             return
         #save mission parameters
@@ -158,7 +158,7 @@ class DecenterFMSManager(RComponent):
     def cancel_mission(self, robot_id):
 
         rospy.loginfo('Canceling current mission of robot %s'%robot_id)
-        
+
         try:
             cancel_mission = rospy.ServiceProxy('/robotnik_fms_dispatcher/cancel_mission', RobotNodesTasks)
             cancel_mission_srv_msg = RobotNodesTasksRequest()
@@ -178,7 +178,7 @@ class DecenterFMSManager(RComponent):
 
         if self.last_mission == [] :
             rospy.logerr('Call to insert last mission with any last mission saved')
-  
+
         try:
             insert_mission = rospy.ServiceProxy('/robotnik_fms_ddbb_manager/Missions/insert', InsertMission)
             insert_mission_srv_msg = InsertMissionRequest()
@@ -219,5 +219,5 @@ class DecenterFMSManager(RComponent):
 
         return
 
-        
-    
+
+
