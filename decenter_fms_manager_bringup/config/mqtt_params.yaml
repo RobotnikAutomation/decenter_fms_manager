@@ -1,10 +1,10 @@
 mqtt:
   client:
-    protocol: 4      # MQTTv311
+    protocol: $(arg mqtt_protocol)      # MQTTv311
   connection:
-    host: localhost
-    port: 1883
-    keepalive: 60
+    host: $(arg mqtt_host)
+    port: $(arg mqtt_port)
+    keepalive: $(arg mqtt_keepalive)
   private_path: device/001
 serializer: msgpack:dumps
 deserializer: msgpack:loads
