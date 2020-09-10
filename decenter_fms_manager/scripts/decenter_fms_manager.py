@@ -91,7 +91,7 @@ class DecenterFMSManager(RComponent):
                 'Person Detected !'
             )
 
-            self.send_alert(msg.metadata.robot_id)
+            self.send_alert(int(msg.metadata.robot_id))
 
             return
 
@@ -103,10 +103,10 @@ class DecenterFMSManager(RComponent):
 
             #so far the node to disable is hardcoded but parametrized
             if self.disable_node(self.node_selected):
-                if self.get_current_mission(msg.metadata.robot_id):
-                    if self.cancel_mission(msg.metadata.robot_id):
+                if self.get_current_mission(int(msg.metadata.robot_id)):
+                    if self.cancel_mission(int(msg.metadata.robot_id)):
                         if self.insert_last_mission():
-                            if self.wait_until_robot_takes_new_mission(msg.metadata.robot_id):
+                            if self.wait_until_robot_takes_new_mission(int(msg.metadata.robot_id)):
                                 if self.enable_node(self.node_selected):
                                     rospy.loginfo('Succeed')
                                     return
@@ -119,8 +119,8 @@ class DecenterFMSManager(RComponent):
 
             #so far the node to disable is hardcoded but parametrized
             if self.disable_node(self.node_selected):
-                if self.get_current_mission(msg.metadata.robot_id):
-                    if self.cancel_mission(msg.metadata.robot_id):
+                if self.get_current_mission(int(msg.metadata.robot_id)):
+                    if self.cancel_mission(int(msg.metadata.robot_id)):
                         if self.insert_last_mission():
                             rospy.loginfo('Succeed')
                             return
