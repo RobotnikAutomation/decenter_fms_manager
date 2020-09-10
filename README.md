@@ -1,4 +1,4 @@
-# decenter_fms_manager
+# Decenter FMS Manager
 Manager between Decenter module and Robotnik FMS
 
 ## Dependencies:
@@ -10,3 +10,12 @@ Manager between Decenter module and Robotnik FMS
 
 
 ## Environment variables
+
+| Variable         | Default                         | Meaning               |
+| ---------------- | ------------------------------- | --------------------- |
+| `NODE_SELECTED`  | *2*                             | Node to disable       |
+| `MQTT_HOST`      | *localhost*                     | mqtt broker hostname  |
+| `MQTT_PORT`      | *1883*                          | mqtt broker port      |
+| `MQTT_PROTOCOL`  | *4*                             | mqtt protocol version |
+| `MQTT_KEEPALIVE` | *60*                            | mqtt keep alive       |
+| `MQTT_TOPIC`     | */DECENTER/UC2/object-detector* | mqtt topic to read    |
