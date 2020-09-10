@@ -6,8 +6,8 @@ mqtt:
     port: $(arg mqtt_port)
     keepalive: $(arg mqtt_keepalive)
   private_path: device/001
-serializer: msgpack:dumps
-deserializer: msgpack:loads
+serializer: json:dumps
+deserializer: json:loads
 bridge:
   - factory: mqtt_bridge.bridge:MqttToRosBridge
     msg_type: decenter_msgs.msg:ObjectDetector

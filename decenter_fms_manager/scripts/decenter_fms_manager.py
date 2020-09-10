@@ -25,7 +25,7 @@ class DecenterFMSManager(RComponent):
         self.node_selected = []
         self.node_selected.append(self.node_selected_param)
         print(self.node_selected)
-    
+
     def rosSetup(self):
 
         """Creates and inits ROS components"""
@@ -101,10 +101,10 @@ class DecenterFMSManager(RComponent):
                 'Robot Detected !'
             )
 
-            #so far the node to disable is hardcoded 
+            #so far the node to disable is hardcoded
             self.disable_node(self.node_selected)
-            self.get_current_mission(msg.metadata.robot_id)
-            self.cancel_mission(msg.metadata.robot_id)
+            self.get_current_mission(int(msg.metadata.robot_id))
+            self.cancel_mission(int(msg.metadata.robot_id))
             self.insert_last_mission()
             # TODO: do we need to wait here?
             time.sleep(0.5)
@@ -113,13 +113,13 @@ class DecenterFMSManager(RComponent):
             return
 
         elif object_type == 'others':
-            
+
             rospy.loginfo('Other thing Detected')
 
             #so far the node to disable is hardcoded
             self.disable_node(self.node_selected)
-            self.get_current_mission(msg.metadata.robot_id)
-            self.cancel_mission(msg.metadata.robot_id)
+            self.get_current_mission(int(msg.metadata.robot_id))
+            self.cancel_mission(int(msg.metadata.robot_id))
             self.insert_last_mission()
 
         else:
