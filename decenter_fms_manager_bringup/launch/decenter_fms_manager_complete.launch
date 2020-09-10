@@ -1,12 +1,17 @@
 <?xml version="1.0" ?>
 <launch>
-<<<<<<< HEAD
 
-    <arg name="node_selected" default='2' />
-    
-    <param name='node_selected' type="int" value="$(arg node_selected)"/>
+    <!-- Node parameters -->
+    <arg
+        name="node_selected"
+        default="$(optenv NODE_SELECTED 2)"
+    />
+    <param
+        name='node_selected'
+        type="int"
+        value="$(arg node_selected)"
+    />
 
-=======
     <!-- MQTT connection arguments -->
     <arg
         name="mqtt_host"
@@ -29,7 +34,6 @@
         name="mqtt_topic"
         default="$(optenv MQTT_TOPIC /DECENTER/UC2/object-detector)"
     />
->>>>>>> d53503dbcf2e1d0dafa33921275b7b0fa0e25bc9
     <!-- launch decenter_fms_manager -->
     <node
         pkg="decenter_fms_manager"
