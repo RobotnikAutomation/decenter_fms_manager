@@ -1,0 +1,6 @@
+string aipid
+string robot_id
+geometry_msgs/Pose2D robot_pose
+float32 confidence_limit
+string img_timestamp
+string img_url

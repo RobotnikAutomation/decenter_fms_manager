@@ -1,0 +1,60 @@
+<?xml version="1.0" ?>
+<launch>
+
+    <!-- Node parameters -->
+    <arg
+        name="node_selected"
+        default="$(optenv NODE_SELECTED 2)"
+    />
+    <param
+        name='node_selected'
+        type="int"
+        value="$(arg node_selected)"
+    />
+
+    <!-- MQTT connection arguments -->
+    <arg
+        name="mqtt_host"
+        default="$(optenv MQTT_HOST localhost)"
+    />
+    <arg
+        name="mqtt_port"
+        default="$(optenv MQTT_PORT 1883)"
+    />
+    <arg
+        name="mqtt_protocol"
+        default="$(optenv MQTT_PROTOCOL 4)"
+    />
+    <arg
+        name="mqtt_keepalive"
+        default="$(optenv MQTT_KEEPALIVE 60)"
+    />
+    <!-- Topic Arguments -->
+    <arg
+        name="mqtt_topic"
+        default="$(optenv MQTT_TOPIC /DECENTER/UC2/object-detector)"
+    />
+    <!-- launch decenter_fms_manager -->
+    <node
+        pkg="decenter_fms_manager"
+        type="decenter_fms_manager_node.py"
+        name="decenter_fms_manager"
+        output="screen"
+    >
+    </node>
+
+    <!-- launch mqtt bridge -->
+    <node
+        name="mqtt_bridge"
+        pkg="mqtt_bridge"
+        type="mqtt_bridge_node.py"
+        output="screen"
+    >
+        <rosparam
+            command="load"
+            file="$(find decenter_fms_manager_bringup)/config/mqtt_params.yaml"
+            subst_value="true"
+        />
+    </node>
+
+</launch>

@@ -1,0 +1,3 @@
+decenter_msgs/Coordinates coordinates
+string obj_class
+float64 confidence

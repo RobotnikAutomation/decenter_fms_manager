@@ -1,0 +1,6 @@
+[submodule "mqtt_bridge"]
+	path = mqtt_bridge
+	url = https://github.com/RobotnikAutomation/mqtt_bridge
+[submodule "rcomponent"]
+	path = rcomponent
+	url = https://github.com/RobotnikAutomation/rcomponent
