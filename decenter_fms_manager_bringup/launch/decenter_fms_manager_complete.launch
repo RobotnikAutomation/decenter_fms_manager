@@ -1,5 +1,6 @@
 <?xml version="1.0" ?>
 <launch>
+    <!-- MQTT connection arguments -->
     <arg
         name="mqtt_broker"
         default="$(optenv MQTT_BROKER localhost)"
