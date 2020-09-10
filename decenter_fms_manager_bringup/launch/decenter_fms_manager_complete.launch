@@ -2,11 +2,23 @@
 <launch>
 
     <!-- launch decenter_fms_manager -->
-    <node pkg="decenter_fms_manager" type="decenter_fms_manager_node.py" name="decenter_fms_manager" output="screen">
+    <node
+        pkg="decenter_fms_manager"
+        type="decenter_fms_manager_node.py"
+        name="decenter_fms_manager" output="screen"
+    >
     </node>
     <!-- launch mqtt bridge -->
-    <node name="mqtt_bridge" pkg="mqtt_bridge" type="mqtt_bridge_node.py" output="screen">
-        <rosparam command="load" file="$(find decenter_fms_manager_bringup)/config/mqtt_params.yaml" />
+    <node
+        name="mqtt_bridge"
+        pkg="mqtt_bridge"
+        type="mqtt_bridge_node.py"
+        output="screen"
+    >
+        <rosparam
+            command="load"
+            file="$(find decenter_fms_manager_bringup)/config/mqtt_params.yaml"
+        />
     </node>
 
 </launch>
