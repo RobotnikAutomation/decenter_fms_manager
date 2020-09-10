@@ -11,5 +11,5 @@ deserializer: msgpack:loads
 bridge:
   - factory: mqtt_bridge.bridge:MqttToRosBridge
     msg_type: decenter_msgs.msg:ObjectDetector
-    topic_from: /DECENTER/UC2/object-detector
+    topic_from: $(arg mqtt_topic)
     topic_to: /decenter_fms_manager/object_detector_mqtt_msg

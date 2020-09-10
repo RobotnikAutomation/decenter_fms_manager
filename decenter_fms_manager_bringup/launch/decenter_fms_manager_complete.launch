@@ -17,6 +17,11 @@
         name="mqtt_keepalive"
         default="$(optenv MQTT_KEEPALIVE 60)"
     />
+    <!-- Topic Arguments -->
+    <arg
+        name="mqtt_topic"
+        default="$(optenv MQTT_TOPIC /DECENTER/UC2/object-detector)"
+    />
     <!-- launch decenter_fms_manager -->
     <node
         pkg="decenter_fms_manager"
