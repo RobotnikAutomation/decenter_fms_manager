@@ -25,7 +25,7 @@ class DecenterFMSManager(RComponent):
         self.node_selected = []
         self.node_selected.append(self.node_selected_param)
         print(self.node_selected)
-    
+
     def rosSetup(self):
 
         """Creates and inits ROS components"""
@@ -114,7 +114,7 @@ class DecenterFMSManager(RComponent):
             return
 
         elif object_type == 'others':
-            
+
             rospy.loginfo('Other thing Detected')
 
             #so far the node to disable is hardcoded but parametrized
@@ -324,7 +324,7 @@ class DecenterFMSManager(RComponent):
 
         while(len(response.missions) <= 0 and tries > 0):
 
-            try:            
+            try:
                 response = get_mission(get_mission_srv_msg)
             except rospy.ServiceException as e:
                 rospy.logerr(
@@ -336,7 +336,7 @@ class DecenterFMSManager(RComponent):
 
             time.sleep(1)
             tries = tries -1
-        
+
         if tries <= 0:
             return False
         else:
