@@ -18,6 +18,7 @@
         <rosparam
             command="load"
             file="$(find decenter_fms_manager_bringup)/config/mqtt_params.yaml"
+            subst_value="true"
         />
     </node>
 
