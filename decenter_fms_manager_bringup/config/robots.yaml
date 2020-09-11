@@ -1,7 +1,8 @@
+---
 robots:
-  - id: $(arg robot_0_id)
-    namespace: $(arg robot_0_ns)
-    enable_service: $(arg robot_0_enable_service)
   - id: $(arg robot_1_id)
     namespace: $(arg robot_1_ns)
     enable_service: $(arg robot_1_enable_service)
+  - id: $(arg robot_2_id)
+    namespace: $(arg robot_2_ns)
+    enable_service: $(arg robot_2_enable_service)
