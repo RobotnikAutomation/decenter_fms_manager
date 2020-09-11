@@ -21,10 +21,22 @@ class DecenterFMSManager(RComponent):
         """Gets params from param server"""
         RComponent.rosReadParams(self)
 
-        self.node_selected_param = rospy.get_param('node_selected', default = "6")
+        self.node_selected_param = rospy.get_param(
+            'node_selected',
+            default="6"
+        )
         self.node_selected = []
         self.node_selected.append(self.node_selected_param)
         print(self.node_selected)
+        robot_param = rospy.get_name()
+        robot_param += "/robots"
+        self.robots = rospy.get_param(
+            robot_param
+        )
+        # rospy.loginfo(
+        #     self.robots[0]['id']
+        # )
+        #filter(lambda obj: obj.get('id') == 0, self.robots)
 
     def rosSetup(self):
 
@@ -63,6 +75,20 @@ class DecenterFMSManager(RComponent):
         """Performs the change of state"""
         return RComponent.switchToState(self, new_state)
 
+    def enable_send_pictures(self, enable, service):
+        rospy.wait_for_service( service )
+        try:
+            self._enable_service = rospy.ServiceProxy(
+                name=service,
+                service_class=SetBool,
+            )
+            response = self._enable_service(enable)
+            rospy.loginfo(response)
+        except rospy.ServiceException as e:
+            rospy.loginfo("Service call failed: %s" % e)
+            return False
+        pass
+
     def object_detector_cb(self, msg):
         '''
     		Callback object_detector_cb (rostopic pub /object_detector_mqtt_msg decenter_msgs/ObjectDetector )
@@ -77,6 +103,16 @@ class DecenterFMSManager(RComponent):
                 'object_detector_cb::objects is empty'
             )
             return
+
+        robot_data = filter(
+            lambda obj: obj.get('id') == int(msg.metadata.robot_id),
+            self.robots
+        )
+        robot_enable_service = robot_data[0]['enable_service']
+        self.enable_send_pictures(
+            enable=False,
+            service=robot_enable_service
+        )
 
         #so far we just take the first object detected
         object_type = msg.objects[0].warehouse_obj_class
@@ -109,8 +145,16 @@ class DecenterFMSManager(RComponent):
                             if self.wait_until_robot_takes_new_mission(int(msg.metadata.robot_id)):
                                 if self.enable_node(self.node_selected):
                                     rospy.loginfo('Succeed')
+                                    self.enable_send_pictures(
+                                        enable=True,
+                                        service=robot_enable_service
+                                    )
                                     return
             rospy.logerr('Something went wrong')
+            self.enable_send_pictures(
+                enable=True,
+                service=robot_enable_service
+            )
             return
 
         elif object_type == 'others':
@@ -123,9 +167,17 @@ class DecenterFMSManager(RComponent):
                     if self.cancel_mission(int(msg.metadata.robot_id)):
                         if self.insert_last_mission():
                             rospy.loginfo('Succeed')
+                            self.enable_send_pictures(
+                                enable=True,
+                                service=robot_enable_service
+                            )
                             return
 
             rospy.logerr('Something went wrong')
+            self.enable_send_pictures(
+                enable=True,
+                service=robot_enable_service
+            )
             return
 
         else:
