@@ -9,6 +9,8 @@ from robotnik_fms_msgs.srv import *
 
 from rcomponent.rcomponent import *
 
+from std_srvs.srv import SetBool, SetBoolResponse
+
 class DecenterFMSManager(RComponent):
     def __init__(self):
 
@@ -84,10 +86,10 @@ class DecenterFMSManager(RComponent):
             )
             response = self._enable_service(enable)
             rospy.loginfo(response)
+            return response['success']
         except rospy.ServiceException as e:
             rospy.loginfo("Service call failed: %s" % e)
             return False
-        pass
 
     def object_detector_cb(self, msg):
         '''
