@@ -1,0 +1,5 @@
+robots:
+  - id: 0
+    namespace: "/rb1_base"
+  - id: 1
+    namespace: "/robot_b"
