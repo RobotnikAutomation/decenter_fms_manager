@@ -5,7 +5,18 @@
     <arg
         name="node_selected"
         default="$(optenv NODE_SELECTED 2)"
+	/>
+    <!-- Light service parameters -->
+    <arg
+        name="lights_service_name"
+	default="$(optenv LIGHT_SERVICE_NAME '/gazebo/set_light_properties')"
+        />
+    <param
+        name='lights_service_name'
+        type="string"
+        value="$(arg lights_service_name)"
     />
+
     <param
         name='node_selected'
         type="int"
