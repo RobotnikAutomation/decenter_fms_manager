@@ -184,6 +184,10 @@ class DecenterFMSManager(RComponent):
             rospy.logwarn(
                 'Indeterminate case. Not person, not robot, not others'
             )
+            self.enable_send_pictures(
+                enable=True,
+                service=robot_enable_service
+            )
             return
 
     def disable_node(self, node):
