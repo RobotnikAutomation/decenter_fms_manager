@@ -9,7 +9,7 @@ from robotnik_fms_msgs.srv import *
 
 from rcomponent.rcomponent import *
 
-from std_srvs.srv import SetBool, SetBoolResponse
+from std_srvs.srv import *
 
 class DecenterFMSManager(RComponent):
     def __init__(self):
@@ -26,6 +26,10 @@ class DecenterFMSManager(RComponent):
         self.node_selected_param = rospy.get_param(
             'node_selected',
             default="6"
+        )
+        self.lights_service_param = rospy.get_param(
+            'lights_service_name',
+            default="/gazebo/set_light_properties"
         )
         self.node_selected = []
         self.node_selected.append(self.node_selected_param)
@@ -174,6 +178,9 @@ class DecenterFMSManager(RComponent):
                 self.object_detector_fail()
                 return
             if self.enable_node(self.node_selected):
+                self.object_detector_fail()
+                return
+            if self.send_alert(self.node_selected):
                 self.object_detector_fail()
                 return
             # Success
@@ -422,18 +429,28 @@ class DecenterFMSManager(RComponent):
             'Sending alert to robot %s'%robot_id
         )
 
-        #       TODO:call gazebo robot service to blink the lights
-        #try:
-        #    send_alert = rospy.ServiceProxy('TBD', TBD_SRVS_TYPE)
-        #    send_alert_srv_msg = TBD_Request()
-        #    send_alert_srv_msg.robot_id = robot_id
-        #    response = send_alert(send_alert_srv_msg)
-        #except rospy.ServiceException as e:
-        #    rospy.logerr("send_alert service call failed: %s"%e)
-        #    return
-#
-        #rospy.logdebug('Received response from send_alert_service:%s'%response)
+        #call gazebo robot service to blink the lights
+        try:
+            send_alert = rospy.ServiceProxy(self.lights_service_param, SetBool)            
+            response = send_alert(True)
+        except rospy.ServiceException as e:
+            rospy.logerr("send_alert service call failed: %s"%e)
+            return False       
 
+        rospy.logdebug('Received response from send_alert_service:%s'%response)
+
+        #wait some time
+        time.sleep(5)
+
+        #call gazebo robot service to switch off the lights
+        try:
+            send_alert = rospy.ServiceProxy(self.lights_service_param, SetBool)            
+            response = send_alert(False)
+        except rospy.ServiceException as e:
+            rospy.logerr("send_alert service call failed: %s"%e)
+            return False     
+
+        rospy.logdebug('Received response from send_alert_service:%s'%response)
 
         return True
 
