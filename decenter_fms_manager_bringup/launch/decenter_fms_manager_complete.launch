@@ -34,6 +34,33 @@
         name="mqtt_topic"
         default="$(optenv MQTT_TOPIC /DECENTER/UC2/object-detector)"
     />
+    <!-- Robots Arguments -->
+    <!-- Robots 0  Arguments -->
+    <arg
+        name="robot_0_id"
+        default="$(optenv ROBOT_0_ID 0)"
+    />
+    <arg
+        name="robot_0_ns"
+        default="$(optenv ROBOT_0_NS rb1_base)"
+    />
+    <arg
+        name="robot_0_enable_service"
+        default="$(optenv ROBOT_0_ENABLE_SERVICE /rb1_base/image_provider/comm_enable)"
+    />
+    <!-- Robots 1  Arguments -->
+    <arg
+        name="robot_1_id"
+        default="$(optenv ROBOT_1_ID 1)"
+    />
+    <arg
+        name="robot_1_ns"
+        default="$(optenv ROBOT_1_NS robot_b)"
+    />
+    <arg
+        name="robot_1_enable_service"
+        default="$(optenv ROBOT_1_ENABLE_SERVICE /robot_b/image_provider/comm_enable)"
+    />
     <!-- launch decenter_fms_manager -->
     <node
         pkg="decenter_fms_manager"
@@ -53,6 +80,11 @@
         <rosparam
             command="load"
             file="$(find decenter_fms_manager_bringup)/config/mqtt_params.yaml"
+            subst_value="true"
+        />
+        <rosparam
+            command="load"
+            file="$(find decenter_fms_manager_bringup)/config/robots.yaml"
             subst_value="true"
         />
     </node>
