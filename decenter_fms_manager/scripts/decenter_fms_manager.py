@@ -217,6 +217,7 @@ class DecenterFMSManager(RComponent):
                 return
             # Success
             rospy.loginfo('Succeed')
+            rospy.sleep(60)
             self.enable_send_pictures(
                 enable=True,
                 service=robot_enable_service
@@ -233,7 +234,22 @@ class DecenterFMSManager(RComponent):
             )
             return
 
-    def unblock_node(self, node, robot_id):
+    def unblock_node(
+            self,
+            node,
+            robot_id,
+            retry=10
+    ):
+        for retry_count in range(0, retry):
+            if self.unblock_node_core(
+                    node=node,
+                    robot_id=robot_id,
+            ):
+                return True
+            rospy.sleep(0.25)
+        return False
+
+    def unblock_node_core(self, node, robot_id):
 
         rospy.loginfo(
             'Unblocking node:%s'%node
