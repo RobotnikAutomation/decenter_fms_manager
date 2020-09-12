@@ -91,11 +91,12 @@ class DecenterFMSManager(RComponent):
             rospy.loginfo("Service call failed: %s" % e)
             return False
 
-    def object_detector_fail(self):
+    def object_detector_fail(self, service):
         rospy.logerr('Something went wrong')
+        rospy.sleep(30)
         self.enable_send_pictures(
             enable=True,
-            service=robot_enable_service
+            service=service
         )
         return
 
@@ -150,31 +151,31 @@ class DecenterFMSManager(RComponent):
 
             #so far the node to disable is hardcoded but parametrized
             if not self.get_current_mission(int(msg.metadata.robot_id)):
-                self.object_detector_fail()
+                self.object_detector_fail(robot_enable_service)
                 return
             if not self.cancel_mission(int(msg.metadata.robot_id)):
-                self.object_detector_fail()
+                self.object_detector_fail(robot_enable_service)
                 return
             if not self.unblock_node(
                     node=self.node_selected,
                     robot_id=int(msg.metadata.robot_id)
             ):
-                self.object_detector_fail()
+                self.object_detector_fail(robot_enable_service)
                 return
 
             if not self.disable_node(self.node_selected):
-                self.object_detector_fail()
+                self.object_detector_fail(robot_enable_service)
                 return
             if not self.insert_last_mission():
-                self.object_detector_fail()
+                self.object_detector_fail(robot_enable_service)
                 return
             if not self.wait_until_robot_takes_new_mission(
                 int(msg.metadata.robot_id)
             ):
-                self.object_detector_fail()
+                self.object_detector_fail(robot_enable_service)
                 return
             if self.enable_node(self.node_selected):
-                self.object_detector_fail()
+                self.object_detector_fail(robot_enable_service)
                 return
             # Success
             rospy.loginfo('Succeed')
@@ -190,28 +191,28 @@ class DecenterFMSManager(RComponent):
 
             #so far the node to disable is hardcoded but parametrized
             if not self.get_current_mission(int(msg.metadata.robot_id)):
-                self.object_detector_fail()
+                self.object_detector_fail(robot_enable_service)
                 return
             if not self.cancel_mission(int(msg.metadata.robot_id)):
-                self.object_detector_fail()
+                self.object_detector_fail(robot_enable_service)
                 return
             if not self.unblock_node(
                     node=self.node_selected,
                     robot_id=int(msg.metadata.robot_id)
             ):
-                self.object_detector_fail()
+                self.object_detector_fail(robot_enable_service)
                 return
 
             if not self.disable_node(self.node_selected):
-                self.object_detector_fail()
+                self.object_detector_fail(robot_enable_service)
                 return
             if not self.insert_last_mission():
-                self.object_detector_fail()
+                self.object_detector_fail(robot_enable_service)
                 return
             if not self.wait_until_robot_takes_new_mission(
                 int(msg.metadata.robot_id)
             ):
-                self.object_detector_fail()
+                self.object_detector_fail(robot_enable_service)
                 return
             # Success
             rospy.loginfo('Succeed')
