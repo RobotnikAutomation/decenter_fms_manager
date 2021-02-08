@@ -11,6 +11,10 @@ from rcomponent.rcomponent import *
 
 from std_srvs.srv import *
 
+from robotnik_signal_msgs.msg import *
+
+from robotnik_signal_msgs.srv import *
+
 class DecenterFMSManager(RComponent):
     def __init__(self):
 
@@ -31,6 +35,7 @@ class DecenterFMSManager(RComponent):
             'lights_service_name',
             default="/gazebo/set_light_properties"
         )
+
         self.node_selected = []
         self.node_selected.append(self.node_selected_param)
         print(self.node_selected)
@@ -448,12 +453,68 @@ class DecenterFMSManager(RComponent):
 
         return True
 
+    def manage_ligths(
+            self,
+            robot_id,
+            robot_prefix,
+            service_name,
+            signal,
+            enable,
+    ):
+        # if enable:
+        #     rospy.loginfo(
+        #         'Enabling %s lights on robot %s',
+        #         %signal,
+        #         %robot_id,
+        #     )
+        # else:
+        #     rospy.loginfo(
+        #         'Disabling %s lights on robot %s',
+        #         %signal,
+        #         %robot_id,
+        #     )
+
+        full_service_name = '/'
+        full_service_name += robot_prefix
+        full_service_name += '/'
+        full_service_name += service_name
+        try:
+            send_alert = rospy.ServiceProxy(
+                # name=self.lights_service_param,
+                name=full_service_name,
+                service_class=SetSignal,
+            )
+            set_signal_srv_msg = SetSignalRequest()
+            set_signal_srv_msg.signal_id = signal
+            set_signal_srv_msg.enable = enable
+            response = send_alert(set_signal_srv_msg)
+            if not response:
+                rospy.logerr(
+                    'The command returned error'
+                )
+        except rospy.ServiceException as e:
+            raise e
+            rospy.logerr(
+                'Could not perform last command due to execption'
+            )
+            return False
+        return True
+
     def send_alert(self, robot_id):
 
         rospy.loginfo(
             'Sending alert to Person robot %s'%robot_id
         )
-        rospy.sleep(60)
+
+        light_response = self.manage_ligths(
+            robot_id=robot_id,
+            robot_prefix='rb1_base',
+            service_name='leds_driver/set_signal',
+            signal='emergency',
+            enable=True,
+
+        )
+        return(light_response)
         # #call gazebo robot service to blink the lights
         # try:
         #     send_alert = rospy.ServiceProxy(self.lights_service_param, SetBool)
@@ -477,7 +538,8 @@ class DecenterFMSManager(RComponent):
 
         # rospy.logdebug('Received response from send_alert_service:%s'%response)
 
-        return True
+        # rospy.sleep(60)
+        # return True
 
     def wait_until_robot_takes_new_mission(self, robot_id):
 
