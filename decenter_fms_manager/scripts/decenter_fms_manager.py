@@ -546,7 +546,7 @@ class DecenterFMSManager(RComponent):
                 return False
             rospy.sleep(off_time)
 
-        return False
+        return True
 
     def send_alert(self, robot_id):
         # ROBOT HARDCODED
