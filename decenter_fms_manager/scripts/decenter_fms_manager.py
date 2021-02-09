@@ -153,14 +153,7 @@ class DecenterFMSManager(RComponent):
 
             self.send_alert(int(msg.metadata.robot_id))
 
-            rospy.loginfo('Succeed')
-            rospy.sleep(60)
-            self.enable_send_pictures(
-                enable=True,
-                service=robot_enable_service
-            )
 
-            return
 
         elif object_type == 'robot':
 
@@ -200,14 +193,6 @@ class DecenterFMSManager(RComponent):
             if not self.enable_node(self.node_selected):
                 self.object_detector_fail(robot_enable_service)
                 return
-            # Success
-            rospy.loginfo('Succeed')
-            rospy.sleep(60)
-            self.enable_send_pictures(
-                enable=True,
-                service=robot_enable_service
-            )
-            return
 
         elif object_type == 'others':
 
@@ -241,15 +226,6 @@ class DecenterFMSManager(RComponent):
             ):
                 self.object_detector_fail(robot_enable_service)
                 return
-            # Success
-            rospy.loginfo('Succeed')
-            rospy.sleep(60)
-            self.enable_send_pictures(
-                enable=True,
-                service=robot_enable_service
-            )
-            return
-
         else:
             rospy.logwarn(
                 'Indeterminate case. Not person, not robot, not others'
@@ -259,6 +235,15 @@ class DecenterFMSManager(RComponent):
                 service=robot_enable_service
             )
             return
+
+        # Success
+        rospy.loginfo('Succeed')
+        rospy.sleep(60)
+        self.enable_send_pictures(
+            enable=True,
+            service=robot_enable_service
+        )
+        return
 
     def unblock_node(
             self,
