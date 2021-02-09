@@ -197,7 +197,7 @@ class DecenterFMSManager(RComponent):
             ):
                 self.object_detector_fail(robot_enable_service)
                 return
-            if self.enable_node(self.node_selected):
+            if not self.enable_node(self.node_selected):
                 self.object_detector_fail(robot_enable_service)
                 return
             # Success
