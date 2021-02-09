@@ -197,9 +197,6 @@ class DecenterFMSManager(RComponent):
             if self.enable_node(self.node_selected):
                 self.object_detector_fail(robot_enable_service)
                 return
-            if self.send_alert(self.node_selected):
-                self.object_detector_fail(robot_enable_service)
-                return
             # Success
             rospy.loginfo('Succeed')
             rospy.sleep(60)
