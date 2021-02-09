@@ -555,6 +555,7 @@ class DecenterFMSManager(RComponent):
             'Sending alert to Person robot %s'%robot_id
         )
 
+        rospy.loginfo('Enabling light signals')
         light_response = self.manage_ligths(
             robot_prefix='rb1_base',
             service_name='leds_driver/set_signal',
@@ -563,7 +564,10 @@ class DecenterFMSManager(RComponent):
 
         )
         if not light_response:
+            rospy.logerr('Error while Enabling light signals')
             return False
+
+        rospy.loginfo('Enabling sound signals')
         sound_response = self.manage_buzzer(
             robot_prefix='rb1_base',
             service_name='robotnik_base_hw/set_digital_output',
@@ -573,7 +577,10 @@ class DecenterFMSManager(RComponent):
             iterations=10,
         )
         if not sound_response:
+            rospy.logerr('Error while Enabling sound signals')
             return False
+
+        rospy.loginfo('Disabling light signals')
         light_response = self.manage_ligths(
             robot_prefix='rb1_base',
             service_name='leds_driver/set_signal',
@@ -581,6 +588,10 @@ class DecenterFMSManager(RComponent):
             enable=False,
 
         )
+        if not light_response:
+            rospy.logerr('Error while disabling light signals')
+            return False
+
         return True
         # #call gazebo robot service to blink the lights
         # try:
