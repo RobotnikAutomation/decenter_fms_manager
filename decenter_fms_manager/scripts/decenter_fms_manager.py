@@ -299,19 +299,33 @@ class DecenterFMSManager(RComponent):
         return True
 
 
-    def disable_node(self, node, retry=10):
-        for retry_count in range(0, retry):
-            if self.disable_node_core(node):
+    def enable_node(self, node, retry=10):
+        rospy.loginfo(
+            'Enabling node:%s'%node
+        )
+        for _ in range(retry):
+            if self.disable_node_core(node, False):
                 return True
             rospy.sleep(0.25)
+        rospy.logerr('No more retries')
         return False
 
-    def disable_node_core(self, node):
-
+    def disable_node(self, node, retry=10):
         rospy.loginfo(
             'Disabling node:%s'%node
         )
+        for _ in range(retry):
+            if self.disable_node_core(node):
+                return True
+            rospy.sleep(0.25)
+        rospy.logerr('No more retries')
+        return False
 
+    def disable_node_core(
+            self,
+            node,
+            disable=True
+    ):
         try:
             disable_node = rospy.ServiceProxy(
                 '/robotnik_fms_routes_node/disable_node',
@@ -319,7 +333,7 @@ class DecenterFMSManager(RComponent):
             )
             disable_node_srv_msg = DisableNodeRequest()
             disable_node_srv_msg.node_id = node
-            disable_node_srv_msg.disable = True
+            disable_node_srv_msg.disable = disable
             response = disable_node(disable_node_srv_msg)
 
         except rospy.ServiceException as e:
@@ -422,34 +436,6 @@ class DecenterFMSManager(RComponent):
 
         rospy.logdebug(
             'Received response from insert_mission_service:%s'%response
-        )
-
-        return True
-
-    def enable_node(self, node):
-
-        rospy.loginfo(
-            'Enabling the node %s again'%node
-        )
-
-        try:
-            disable_node = rospy.ServiceProxy(
-                '/robotnik_fms_routes_node/disable_node',
-                DisableNode
-            )
-            disable_node_srv_msg = DisableNodeRequest()
-            disable_node_srv_msg.node_id = node
-            disable_node_srv_msg.disable = False
-            response = disable_node(disable_node_srv_msg)
-
-        except rospy.ServiceException as e:
-            rospy.logerr(
-                "disable_node service call failed: %s"%e
-            )
-            return False
-
-        rospy.logdebug(
-            'Received response from service:%s'%response
         )
 
         return True
