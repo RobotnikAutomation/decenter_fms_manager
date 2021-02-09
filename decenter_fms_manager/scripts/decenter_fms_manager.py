@@ -15,6 +15,10 @@ from robotnik_signal_msgs.msg import *
 
 from robotnik_signal_msgs.srv import *
 
+from robotnik_msgs.msg import *
+
+from robotnik_msgs.srv import *
+
 class DecenterFMSManager(RComponent):
     def __init__(self):
 
@@ -455,39 +459,25 @@ class DecenterFMSManager(RComponent):
 
     def manage_ligths(
             self,
-            robot_id,
             robot_prefix,
             service_name,
             signal,
             enable,
     ):
-        # if enable:
-        #     rospy.loginfo(
-        #         'Enabling %s lights on robot %s',
-        #         %signal,
-        #         %robot_id,
-        #     )
-        # else:
-        #     rospy.loginfo(
-        #         'Disabling %s lights on robot %s',
-        #         %signal,
-        #         %robot_id,
-        #     )
 
         full_service_name = '/'
         full_service_name += robot_prefix
         full_service_name += '/'
         full_service_name += service_name
         try:
-            send_alert = rospy.ServiceProxy(
-                # name=self.lights_service_param,
+            send_light_alert = rospy.ServiceProxy(
                 name=full_service_name,
                 service_class=SetSignal,
             )
             set_signal_srv_msg = SetSignalRequest()
             set_signal_srv_msg.signal_id = signal
             set_signal_srv_msg.enable = enable
-            response = send_alert(set_signal_srv_msg)
+            response = send_light_alert(set_signal_srv_msg)
             if not response:
                 rospy.logerr(
                     'The command returned error'
@@ -500,21 +490,115 @@ class DecenterFMSManager(RComponent):
             return False
         return True
 
-    def send_alert(self, robot_id):
 
+    def manage_buzzer_low_level(
+            self,
+            service_name,
+            digital_ouput,
+            enable,
+    ):
+        try:
+            send_sound_alert = rospy.ServiceProxy(
+                name=service_name,
+                service_class=set_digital_output,
+            )
+            set_digital_output_srv_msg = set_digital_outputRequest()
+            set_digital_output_srv_msg.output = digital_ouput
+            set_digital_output_srv_msg.value = enable
+            response = send_sound_alert(set_digital_output_srv_msg)
+            if not response:
+                rospy.logerr(
+                    'The command returned error'
+                )
+        except rospy.ServiceException as service_expection:
+            raise service_expection
+            rospy.logerr(
+                'Could not perform last command due to execption'
+            )
+            return False
+        return True
+
+
+    def manage_buzzer(
+            self,
+            robot_prefix,
+            service_name,
+            digital_ouput,
+            period=1,
+            on_time=0.5,
+            iterations=10,
+    ):
+        full_service_name = '/'
+        full_service_name += robot_prefix
+        full_service_name += '/'
+        full_service_name += service_name
+        off_time = period - on_time
+        if off_time < 0:
+            rospy.logerr(
+                'On time could not be greater and period'
+            )
+            return False
+        if iterations <= 0:
+            rospy.logerr(
+                'Iterations should be greater than 0'
+            )
+            return False
+        for _ in range(iterations):
+            response = self.manage_buzzer_low_level(
+                service_name=full_service_name,
+                digital_ouput=digital_ouput,
+                enable=True,
+            )
+            if not response:
+                rospy.logerr('Error on buzzer on')
+                return False
+            rospy.sleep(on_time)
+            response = self.manage_buzzer_low_level(
+                service_name=full_service_name,
+                digital_ouput=digital_ouput,
+                enable=False,
+            )
+            if not response:
+                rospy.logerr('Error on buzzer off')
+                return False
+            rospy.sleep(off_time)
+
+        return False
+
+    def send_alert(self, robot_id):
+        # ROBOT HARDCODED
+        # HARDWARE HARDCODED
         rospy.loginfo(
             'Sending alert to Person robot %s'%robot_id
         )
 
         light_response = self.manage_ligths(
-            robot_id=robot_id,
             robot_prefix='rb1_base',
             service_name='leds_driver/set_signal',
             signal='emergency',
             enable=True,
 
         )
-        return(light_response)
+        if not light_response:
+            return False
+        sound_response = self.manage_buzzer(
+            robot_prefix='rb1_base',
+            service_name='robotnik_base_hw/set_digital_output',
+            digital_ouput=1,
+            period=1,
+            on_time=0.5,
+            iterations=10,
+        )
+        if not sound_response:
+            return False
+        light_response = self.manage_ligths(
+            robot_prefix='rb1_base',
+            service_name='leds_driver/set_signal',
+            signal='emergency',
+            enable=False,
+
+        )
+        return True
         # #call gazebo robot service to blink the lights
         # try:
         #     send_alert = rospy.ServiceProxy(self.lights_service_param, SetBool)
