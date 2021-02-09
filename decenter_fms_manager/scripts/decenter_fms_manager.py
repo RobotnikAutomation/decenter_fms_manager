@@ -238,7 +238,7 @@ class DecenterFMSManager(RComponent):
 
         # Success
         rospy.loginfo('Succeed')
-        rospy.sleep(60)
+        rospy.sleep(30)
         self.enable_send_pictures(
             enable=True,
             service=robot_enable_service
