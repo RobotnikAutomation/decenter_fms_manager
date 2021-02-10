@@ -26,9 +26,8 @@ class DecenterFMSManager(RComponent):
 
         self.last_mission = []
         self.led_ev = False
-        self.led_ev_off_flag = False
+        self.checking_robot_in_mission = False
         self.robot_in_mission = False
-        self.robot_in_mission_prev = False
 
     def rosReadParams(self):
 
@@ -61,7 +60,11 @@ class DecenterFMSManager(RComponent):
 
         """Creates and inits ROS components"""
         RComponent.rosSetup(self)
-
+        rospy.Timer(
+            period=rospy.Duration(1),
+            callback=self.mission_check_timer_callback,
+            oneshot=False
+        )
         self.topic_sub = rospy.Subscriber(
             '/decenter_fms_manager/object_detector_mqtt_msg',
             ObjectDetector,
@@ -81,16 +84,25 @@ class DecenterFMSManager(RComponent):
         self.clear_light_indicator()
         self.led_ev = False
 
-    def readyState(self):
-        if not self.led_ev:
-            if self.is_robot_in_mission():
+    def mission_check_timer_callback(self,event):
+        if self.led_ev:
+            return True
+        if self.checking_robot_in_mission:
+            return False
+        self.checking_robot_in_mission = True
+        if self.is_robot_in_mission():
+            if not self.robot_in_mission:
                 self.send_normal_route_indicator()
-                self.led_ev_off_flag = False
-            else:
-                if not self.led_ev_off_flag:
-                    self.clear_light_indicator()
-                    self.led_ev_off_flag = True
+                rospy.loginfo('robot in mission')
+            self.robot_in_mission = True
+        else:
+            if self.robot_in_mission:
+                self.clear_light_indicator()
+                rospy.loginfo('robot idle')
+            self.robot_in_mission = False
+        self.checking_robot_in_mission = False
 
+    def readyState(self):
         """Actions performed in ready state"""
 
     def shutdown(self):
