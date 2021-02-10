@@ -431,6 +431,33 @@ class DecenterFMSManager(RComponent):
 
         return True
 
+    def clear_light_indicator(
+            self,
+            robot_prefix='rb1_base',
+            service_name='leds_driver/clear_signals',
+    ):
+        full_service_name = '/'
+        full_service_name += robot_prefix
+        full_service_name += '/'
+        full_service_name += service_name
+        try:
+            send_light_alert = rospy.ServiceProxy(
+                name=full_service_name,
+                service_class=Trigger,
+            )
+            response = send_light_alert()
+            if not response:
+                rospy.logerr(
+                    'The command returned error'
+                )
+        except rospy.ServiceException as e:
+            raise e
+            rospy.logerr(
+                'Could not perform last command due to execption'
+            )
+            return False
+        return True
+
     def manage_ligths(
             self,
             robot_prefix,
