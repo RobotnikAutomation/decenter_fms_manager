@@ -26,12 +26,9 @@ class DecenterFMSManager(RComponent):
 
         self.last_mission = []
         self.led_ev = False
-        self.led_ev_prev = False
-        self.led_ev_counter = 0
-        # based on 40Hz refresh
-        # 3 seconds is 120 ticks
-        self.led_ev_cooldown_ticks = 200
         self.led_ev_off_flag = False
+        self.robot_in_mission = False
+        self.robot_in_mission_prev = False
 
     def rosReadParams(self):
 
@@ -79,23 +76,14 @@ class DecenterFMSManager(RComponent):
         """ Actions perfomed in init state"""
         self.switchToState(State.READY_STATE)
 
+    def led_event_timer_callback(self,event):
+        rospy.loginfo('led event timer callback')
+        self.clear_light_indicator()
+        self.led_ev = False
+
     def readyState(self):
-        if self.led_ev:
-            self.led_ev_off_flag = False
-            if not self.led_ev_prev:
-                self.led_ev_prev = True
-                self.led_ev_counter = self.led_ev_cooldown_ticks
-            else:
-                self.led_ev_counter -= 1
-            if self.led_ev_counter == 0:
-                self.clear_light_indicator()
-                self.led_ev = False
-                self.led_ev_prev = False
-        else:
-            if self.wait_until_robot_takes_new_mission(
-                tries=1,
-                print_msg=False
-            ):
+        if not self.led_ev:
+            if self.is_robot_in_mission():
                 self.send_normal_route_indicator()
                 self.led_ev_off_flag = False
             else:
@@ -639,6 +627,11 @@ class DecenterFMSManager(RComponent):
         # ROBOT HARDCODED
         # HARDWARE HARDCODED
         self.led_ev = True
+        rospy.Timer(
+            period=rospy.Duration(5),
+            callback=self.led_event_timer_callback,
+            oneshot=True
+        )
         rospy.loginfo(
             'Sending Others light indicator %s'%robot_id
         )
@@ -673,6 +666,11 @@ class DecenterFMSManager(RComponent):
         # ROBOT HARDCODED
         # HARDWARE HARDCODED
         self.led_ev = True
+        rospy.Timer(
+            period=rospy.Duration(5),
+            callback=self.led_event_timer_callback,
+            oneshot=True
+        )
         rospy.loginfo(
             'Sending Robot light indicator %s'%robot_id
         )
@@ -708,6 +706,11 @@ class DecenterFMSManager(RComponent):
         # ROBOT HARDCODED
         # HARDWARE HARDCODED
         self.led_ev = True
+        rospy.Timer(
+            period=rospy.Duration(5),
+            callback=self.led_event_timer_callback,
+            oneshot=True
+        )
         rospy.loginfo(
             'Sending alert to Person robot %s'%robot_id
         )
@@ -775,13 +778,7 @@ class DecenterFMSManager(RComponent):
         robot_id=0,
         tries=10,
         sleep=1.0,
-        print_msg=True
     ):
-        if print_msg:
-            rospy.loginfo(
-                'Waiting until robot takes new mission %s'%robot_id
-            )
-
         get_mission = rospy.ServiceProxy(
             '/robotnik_fms_ddbb_manager/Missions/get',
             GetMissions
@@ -813,3 +810,43 @@ class DecenterFMSManager(RComponent):
         else:
             return True
 
+
+    def is_robot_in_mission(
+        self,
+        robot_id=0,
+        tries=10,
+        sleep=1.0,
+    ):
+        get_mission = rospy.ServiceProxy(
+            '/robotnik_fms_ddbb_manager/Missions/get',
+            GetMissions
+        )
+
+        get_mission_srv_msg = GetMissionsRequest()
+        get_mission_srv_msg.id = 0
+        get_mission_srv_msg.robot_id = robot_id
+
+        response = GetMissionsResponse()
+
+        retrieved = False
+
+        while not retrieved:
+
+            try:
+                response = get_mission(get_mission_srv_msg)
+                if len(response.missions) > 0:
+                    return True
+                else:
+                    return False
+            except rospy.ServiceException as e:
+                rospy.logerr(
+                    "robot_takes_new_mission service call failed: %s"%e
+                )
+            rospy.logdebug(
+                'Received response from service:%s'%response
+            )
+            time.sleep(sleep)
+            tries = tries -1
+            if tries == 0:
+                rospy.loginfo('Error while trying to get if robot is in mission')
+                return False
