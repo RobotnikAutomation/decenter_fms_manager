@@ -151,7 +151,7 @@ class DecenterFMSManager(RComponent):
                 'Person Detected !'
             )
 
-            self.send_alert(int(msg.metadata.robot_id))
+            self.send_person_alert(int(msg.metadata.robot_id))
 
 
 
@@ -586,26 +586,26 @@ class DecenterFMSManager(RComponent):
         return True
         # #call gazebo robot service to blink the lights
         # try:
-        #     send_alert = rospy.ServiceProxy(self.lights_service_param, SetBool)
-        #     response = send_alert(True)
+        #     send_person_alert = rospy.ServiceProxy(self.lights_service_param, SetBool)
+        #     response = send_person_alert(True)
         # except rospy.ServiceException as e:
-        #     rospy.logerr("send_alert service call failed: %s"%e)
+        #     rospy.logerr("send_person_alert service call failed: %s"%e)
         #     return False
 
-        # rospy.logdebug('Received response from send_alert_service:%s'%response)
+        # rospy.logdebug('Received response from send_person_alert_service:%s'%response)
 
         # #wait some time
         # time.sleep(5)
 
         # #call gazebo robot service to switch off the lights
         # try:
-        #     send_alert = rospy.ServiceProxy(self.lights_service_param, SetBool)
-        #     response = send_alert(False)
+        #     send_person_alert = rospy.ServiceProxy(self.lights_service_param, SetBool)
+        #     response = send_person_alert(False)
         # except rospy.ServiceException as e:
-        #     rospy.logerr("send_alert service call failed: %s"%e)
+        #     rospy.logerr("send_person_alert service call failed: %s"%e)
         #     return False
 
-        # rospy.logdebug('Received response from send_alert_service:%s'%response)
+        # rospy.logdebug('Received response from send_person_alert_service:%s'%response)
 
         # rospy.sleep(60)
         # return True
