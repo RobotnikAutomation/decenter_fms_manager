@@ -653,9 +653,9 @@ class DecenterFMSManager(RComponent):
             robot_prefix='rb1_base',
             service_name='robotnik_base_hw/set_digital_output',
             digital_ouput=1,
-            period=0.7,
-            on_time=0.3,
-            iterations=3,
+            period=0.5,
+            on_time=0.2,
+            iterations=2,
         )
         if not sound_response:
             rospy.logerr('Error while Enabling sound signals')
@@ -692,9 +692,9 @@ class DecenterFMSManager(RComponent):
             robot_prefix='rb1_base',
             service_name='robotnik_base_hw/set_digital_output',
             digital_ouput=1,
-            period=0.5,
-            on_time=0.4,
-            iterations=2,
+            period=1.0,
+            on_time=0.9,
+            iterations=1,
         )
         if not sound_response:
             rospy.logerr('Error while Enabling sound signals')
