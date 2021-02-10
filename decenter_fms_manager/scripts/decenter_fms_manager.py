@@ -25,6 +25,13 @@ class DecenterFMSManager(RComponent):
         RComponent.__init__(self)
 
         self.last_mission = []
+        self.led_ev = False
+        self.led_ev_prev = False
+        self.led_ev_counter = 0
+        # based on 40Hz refresh
+        # 3 seconds is 120 ticks
+        self.led_ev_cooldown_ticks = 200
+        self.led_ev_off_flag = False
 
     def rosReadParams(self):
 
@@ -73,6 +80,28 @@ class DecenterFMSManager(RComponent):
         self.switchToState(State.READY_STATE)
 
     def readyState(self):
+        if self.led_ev:
+            self.led_ev_off_flag = False
+            if not self.led_ev_prev:
+                self.led_ev_prev = True
+                self.led_ev_counter = self.led_ev_cooldown_ticks
+            else:
+                self.led_ev_counter -= 1
+            if self.led_ev_counter == 0:
+                self.clear_light_indicator()
+                self.led_ev = False
+                self.led_ev_prev = False
+        else:
+            if self.wait_until_robot_takes_new_mission(
+                tries=1,
+                print_msg=False
+            ):
+                self.send_normal_route_indicator()
+                self.led_ev_off_flag = False
+            else:
+                if not self.led_ev_off_flag:
+                    self.clear_light_indicator()
+                    self.led_ev_off_flag = True
 
         """Actions performed in ready state"""
 
@@ -609,6 +638,7 @@ class DecenterFMSManager(RComponent):
     def send_others_indicator(self, robot_id=0):
         # ROBOT HARDCODED
         # HARDWARE HARDCODED
+        self.led_ev = True
         rospy.loginfo(
             'Sending Others light indicator %s'%robot_id
         )
@@ -642,6 +672,7 @@ class DecenterFMSManager(RComponent):
     def send_robot_indicator(self, robot_id=0):
         # ROBOT HARDCODED
         # HARDWARE HARDCODED
+        self.led_ev = True
         rospy.loginfo(
             'Sending Robot light indicator %s'%robot_id
         )
