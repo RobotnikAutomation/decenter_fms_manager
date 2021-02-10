@@ -162,6 +162,10 @@ class DecenterFMSManager(RComponent):
             )
 
 
+            if not self.send_robot_indicator(int(msg.metadata.robot_id)):
+                self.object_detector_fail(robot_enable_service)
+                return
+
             #so far the node to disable is hardcoded but parametrized
             if not self.get_current_mission(int(msg.metadata.robot_id)):
                 self.object_detector_fail(robot_enable_service)
@@ -197,7 +201,9 @@ class DecenterFMSManager(RComponent):
         elif object_type == 'others':
 
             rospy.loginfo('Other thing Detected')
-
+            if not self.send_others_indicator(int(msg.metadata.robot_id)):
+                self.object_detector_fail(robot_enable_service)
+                return
             #so far the node to disable is hardcoded but parametrized
             if not self.get_current_mission(int(msg.metadata.robot_id)):
                 self.object_detector_fail(robot_enable_service)
@@ -566,9 +572,111 @@ class DecenterFMSManager(RComponent):
 
         return True
 
-    def send_alert(self, robot_id):
+    def send_normal_route_indicator(self, robot_id=0):
         # ROBOT HARDCODED
         # HARDWARE HARDCODED
+        rospy.loginfo(
+            'Sending Others normal_route indicator %s'%robot_id
+        )
+
+        rospy.loginfo('Enabling light signals')
+        light_response = self.manage_ligths(
+            robot_prefix='rb1_base',
+            service_name='leds_driver/set_signal',
+            signal='reroute',
+            enable=True,
+
+        )
+        return True
+
+    def send_reroute_indicator(self, robot_id=0):
+        # ROBOT HARDCODED
+        # HARDWARE HARDCODED
+        rospy.loginfo(
+            'Sending Others reroute indicator %s'%robot_id
+        )
+
+        rospy.loginfo('Enabling light signals')
+        light_response = self.manage_ligths(
+            robot_prefix='rb1_base',
+            service_name='leds_driver/set_signal',
+            signal='reroute',
+            enable=True,
+
+        )
+        return True
+
+    def send_others_indicator(self, robot_id=0):
+        # ROBOT HARDCODED
+        # HARDWARE HARDCODED
+        rospy.loginfo(
+            'Sending Others light indicator %s'%robot_id
+        )
+
+        rospy.loginfo('Enabling light signals')
+        light_response = self.manage_ligths(
+            robot_prefix='rb1_base',
+            service_name='leds_driver/set_signal',
+            signal='obstacle',
+            enable=True,
+
+        )
+        if not light_response:
+            rospy.logerr('Error while Enabling light signals')
+            return False
+
+        rospy.loginfo('Enabling sound signals')
+        sound_response = self.manage_buzzer(
+            robot_prefix='rb1_base',
+            service_name='robotnik_base_hw/set_digital_output',
+            digital_ouput=1,
+            period=0.7,
+            on_time=0.3,
+            iterations=3,
+        )
+        if not sound_response:
+            rospy.logerr('Error while Enabling sound signals')
+            return False
+        return True
+
+    def send_robot_indicator(self, robot_id=0):
+        # ROBOT HARDCODED
+        # HARDWARE HARDCODED
+        rospy.loginfo(
+            'Sending Robot light indicator %s'%robot_id
+        )
+
+        rospy.loginfo('Enabling light signals')
+        light_response = self.manage_ligths(
+            robot_prefix='rb1_base',
+            service_name='leds_driver/set_signal',
+            signal='robot',
+            enable=True,
+
+        )
+        if not light_response:
+            rospy.logerr('Error while Enabling light signals')
+            return False
+
+        rospy.loginfo('Enabling sound signals')
+        sound_response = self.manage_buzzer(
+            robot_prefix='rb1_base',
+            service_name='robotnik_base_hw/set_digital_output',
+            digital_ouput=1,
+            period=0.5,
+            on_time=0.4,
+            iterations=2,
+        )
+        if not sound_response:
+            rospy.logerr('Error while Enabling sound signals')
+            return False
+        return True
+
+
+    def send_person_alert(self, robot_id=0):
+        # ROBOT HARDCODED
+        # HARDWARE HARDCODED
+        self.led_ev = True
         rospy.loginfo(
             'Sending alert to Person robot %s'%robot_id
         )
@@ -590,22 +698,16 @@ class DecenterFMSManager(RComponent):
             robot_prefix='rb1_base',
             service_name='robotnik_base_hw/set_digital_output',
             digital_ouput=1,
-            period=1,
-            on_time=0.5,
-            iterations=10,
+            period=0.5,
+            on_time=0.25,
+            iterations=4,
         )
         if not sound_response:
             rospy.logerr('Error while Enabling sound signals')
             return False
 
         rospy.loginfo('Disabling light signals')
-        light_response = self.manage_ligths(
-            robot_prefix='rb1_base',
-            service_name='leds_driver/set_signal',
-            signal='emergency',
-            enable=False,
-
-        )
+        light_response = self.clear_light_indicator()
         if not light_response:
             rospy.logerr('Error while disabling light signals')
             return False
