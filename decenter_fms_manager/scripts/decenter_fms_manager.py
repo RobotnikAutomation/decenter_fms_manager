@@ -610,18 +610,22 @@ class DecenterFMSManager(RComponent):
         # rospy.sleep(60)
         # return True
 
-    def wait_until_robot_takes_new_mission(self, robot_id):
-
-        rospy.loginfo(
-            'Waiting until robot takes new mission %s'%robot_id
-        )
+    def wait_until_robot_takes_new_mission(
+        self,
+        robot_id=0,
+        tries=10,
+        sleep=1.0,
+        print_msg=True
+    ):
+        if print_msg:
+            rospy.loginfo(
+                'Waiting until robot takes new mission %s'%robot_id
+            )
 
         get_mission = rospy.ServiceProxy(
             '/robotnik_fms_ddbb_manager/Missions/get',
             GetMissions
         )
-
-        tries = 10
 
         get_mission_srv_msg = GetMissionsRequest()
         get_mission_srv_msg.id = 0
@@ -641,7 +645,7 @@ class DecenterFMSManager(RComponent):
                 'Received response from service:%s'%response
             )
 
-            time.sleep(1)
+            time.sleep(sleep)
             tries = tries -1
 
         if tries <= 0:
