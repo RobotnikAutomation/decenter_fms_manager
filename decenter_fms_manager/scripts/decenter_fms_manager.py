@@ -79,12 +79,13 @@ class DecenterFMSManager(RComponent):
         """ Actions perfomed in init state"""
         self.switchToState(State.READY_STATE)
 
-    def led_event_timer_callback(self,event):
+    def led_event_timer_callback(self, event):
         rospy.loginfo('led event timer callback')
         self.clear_light_indicator()
         self.led_ev = False
+        self.robot_in_mission = False
 
-    def mission_check_timer_callback(self,event):
+    def mission_check_timer_callback(self, event):
         if self.led_ev:
             return True
         if self.checking_robot_in_mission:
