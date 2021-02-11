@@ -29,8 +29,8 @@ class DecenterFMSManager(RComponent):
         self.checking_robot_in_mission = False
         self.robot_in_mission = False
         self.robot_id_enable_node = -1
-        self.node_enable_wait_time = 10
-        self.img_enable_wait_time = 15
+        self.node_enable_wait_time = 15
+        self.img_enable_wait_time = 30
         self.robot_enable_service = []
 
     def rosReadParams(self):
