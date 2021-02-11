@@ -84,7 +84,7 @@ class DecenterFMSManager(RComponent):
         self.switchToState(State.READY_STATE)
 
     def led_event_timer_callback(self, event):
-        rospy.loginfo('led event timer callback')
+        # rospy.loginfo('led event timer callback')
         self.clear_light_indicator()
         self.led_ev = False
         self.robot_in_mission = False
@@ -106,6 +106,19 @@ class DecenterFMSManager(RComponent):
                 rospy.loginfo('robot idle')
             self.robot_in_mission = False
         self.checking_robot_in_mission = False
+
+    def node_enable_timer_callback(self, event):
+        # rospy.loginfo('node enable timer callback')
+        if self.enable_node(self.node_selected):
+            rospy.loginfo('node %s enabled', self.node_selected)
+
+    def enable_image_timer_callback(self, event):
+        rospy.loginfo('Enable image timer callback')
+        self.enable_send_pictures(
+            enable=True,
+            service=self.robot_enable_service
+        )
+
 
     def readyState(self):
         """Actions performed in ready state"""
@@ -140,11 +153,18 @@ class DecenterFMSManager(RComponent):
 
     def object_detector_fail(self, service):
         rospy.logerr('Something went wrong')
-        rospy.sleep(30)
-        self.enable_send_pictures(
-            enable=True,
-            service=service
+        rospy.Timer(
+            period=rospy.Duration(
+                self.img_enable_wait_time
+            ),
+            callback=self.enable_image_timer_callback,
+            oneshot=True
         )
+        # rospy.sleep(30)
+        # self.enable_send_pictures(
+        #     enable=True,
+        #     service=service
+        # )
         return
 
     def object_detector_cb(self, msg):
@@ -229,9 +249,14 @@ class DecenterFMSManager(RComponent):
             ):
                 self.object_detector_fail(robot_enable_service)
                 return
-            if not self.enable_node(self.node_selected):
-                self.object_detector_fail(robot_enable_service)
-                return
+
+            rospy.Timer(
+                period=rospy.Duration(
+                    self.node_enable_wait_time
+                ),
+                callback=self.node_enable_timer_callback,
+                oneshot=True
+            )
 
         elif object_type == 'others':
 
@@ -279,11 +304,18 @@ class DecenterFMSManager(RComponent):
 
         # Success
         rospy.loginfo('Succeed')
-        rospy.sleep(30)
-        self.enable_send_pictures(
-            enable=True,
-            service=robot_enable_service
+        rospy.Timer(
+            period=rospy.Duration(
+                self.img_enable_wait_time
+            ),
+            callback=self.enable_image_timer_callback,
+            oneshot=True
         )
+        # rospy.sleep(30)
+        # self.enable_send_pictures(
+        #     enable=True,
+        #     service=robot_enable_service
+        # )
         return
 
     def unblock_node(
