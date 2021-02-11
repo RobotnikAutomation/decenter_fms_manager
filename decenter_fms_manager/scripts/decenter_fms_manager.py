@@ -28,6 +28,10 @@ class DecenterFMSManager(RComponent):
         self.led_ev = False
         self.checking_robot_in_mission = False
         self.robot_in_mission = False
+        self.robot_id_enable_node = -1
+        self.node_enable_wait_time = 10
+        self.img_enable_wait_time = 15
+        self.robot_enable_service = []
 
     def rosReadParams(self):
 
@@ -163,6 +167,7 @@ class DecenterFMSManager(RComponent):
             self.robots
         )
         robot_enable_service = robot_data[0]['enable_service']
+        self.robot_enable_service = robot_enable_service
         self.enable_send_pictures(
             enable=False,
             service=robot_enable_service
