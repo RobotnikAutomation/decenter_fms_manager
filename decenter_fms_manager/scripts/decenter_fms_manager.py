@@ -49,6 +49,7 @@ class DecenterFMSManager(RComponent):
 
         self.node_selected = []
         self.node_selected.append(self.node_selected_param)
+        self.node_selected.append(7)
         print(self.node_selected)
         robot_param = rospy.get_name()
         robot_param += "/robots"
