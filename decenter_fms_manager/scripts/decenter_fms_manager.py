@@ -229,6 +229,7 @@ class DecenterFMSManager(RComponent):
             if not self.cancel_mission(int(msg.metadata.robot_id)):
                 self.object_detector_fail(robot_enable_service)
                 return
+            rospy.sleep(5)
             if not self.enable_node(self.node_selected):
                 self.object_detector_fail(robot_enable_service)
                 return
@@ -272,6 +273,7 @@ class DecenterFMSManager(RComponent):
             if not self.cancel_mission(int(msg.metadata.robot_id)):
                 self.object_detector_fail(robot_enable_service)
                 return
+            rospy.sleep(5)
             if not self.enable_node(self.node_selected):
                 self.object_detector_fail(robot_enable_service)
                 return
