@@ -5,7 +5,18 @@
     <arg
         name="node_selected"
         default="$(optenv NODE_SELECTED 2)"
+	/>
+    <!-- Light service parameters -->
+    <arg
+        name="lights_service_name"
+	   default="$(optenv LIGHT_SERVICE_NAME '/gazebo/set_light_properties')"
+        />
+    <param
+        name='lights_service_name'
+        type="string"
+        value="$(arg lights_service_name)"
     />
+
     <param
         name='node_selected'
         type="int"
@@ -34,6 +45,33 @@
         name="mqtt_topic"
         default="$(optenv MQTT_TOPIC /DECENTER/UC2/object-detector)"
     />
+    <!-- Robots Arguments -->
+    <!-- Robots 1  Arguments -->
+    <arg
+        name="robot_1_id"
+        default="$(optenv ROBOT_1_ID 0)"
+    />
+    <arg
+        name="robot_1_ns"
+        default="$(optenv ROBOT_1_NS rb1_base)"
+    />
+    <arg
+        name="robot_1_enable_service"
+        default="$(optenv ROBOT_1_ENABLE_SERVICE /rb1_base/image_provider/comm_enable)"
+    />
+    <!-- Robots 2  Arguments -->
+    <arg
+        name="robot_2_id"
+        default="$(optenv ROBOT_2_ID 1)"
+    />
+    <arg
+        name="robot_2_ns"
+        default="$(optenv ROBOT_2_NS robot_b)"
+    />
+    <arg
+        name="robot_2_enable_service"
+        default="$(optenv ROBOT_2_ENABLE_SERVICE /robot_b/image_provider/comm_enable)"
+    />
     <!-- launch decenter_fms_manager -->
     <node
         pkg="decenter_fms_manager"
@@ -41,6 +79,11 @@
         name="decenter_fms_manager"
         output="screen"
     >
+        <rosparam
+            command="load"
+            file="$(find decenter_fms_manager_bringup)/config/robots.yaml"
+            subst_value="true"
+        />
     </node>
 
     <!-- launch mqtt bridge -->

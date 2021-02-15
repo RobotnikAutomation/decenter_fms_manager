@@ -52,6 +52,7 @@
   <depend>rospy</depend>
   <depend>rcomponent</depend>
   <depend>decenter_fms_manager_msgs</depend>
+  <depend>robotnik_signal_msgs</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
