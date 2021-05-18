@@ -42,14 +42,23 @@ class DecenterFMSManager(RComponent):
             'node_selected',
             default="6"
         )
+        self.nodes_selected_param = rospy.get_param(
+            'nodes_selected',
+            default="101 102"
+        )
         self.lights_service_param = rospy.get_param(
             'lights_service_name',
             default="/gazebo/set_light_properties"
         )
 
         self.node_selected = []
-        self.node_selected.append(self.node_selected_param)
-        self.node_selected.append(7)
+        for node_str in self.nodes_selected_param.split():
+            node = int(node_str)
+            self.node_selected.append(node)
+            rospy.loginfo(
+                "Node to block: " +
+                node_str
+            )
         print(self.node_selected)
         robot_param = rospy.get_name()
         robot_param += "/robots"
