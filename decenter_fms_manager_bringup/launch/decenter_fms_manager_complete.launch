@@ -18,12 +18,6 @@
     />
 
     <param
-        name='node_selected'
-        type="int"
-        value="$(arg node_selected)"
-    />
-
-    <param
         name='nodes_selected'
         type="string"
         value="$(arg nodes_selected)"
