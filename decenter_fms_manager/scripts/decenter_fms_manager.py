@@ -38,11 +38,7 @@ class DecenterFMSManager(RComponent):
         """Gets params from param server"""
         RComponent.rosReadParams(self)
 
-        self.node_selected_param = rospy.get_param(
-            'node_selected',
-            default="6"
-        )
-        self.nodes_selected_param = rospy.get_param(
+         self.nodes_selected_param = rospy.get_param(
             'nodes_selected',
             default="101 102"
         )
