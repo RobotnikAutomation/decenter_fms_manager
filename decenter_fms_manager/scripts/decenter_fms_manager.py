@@ -48,6 +48,11 @@ class DecenterFMSManager(RComponent):
         )
 
         self.node_selected = []
+        rospy.loginfo(
+            "Nodes param: " +
+            self.nodes_selected_param
+        )
+
         for node_str in self.nodes_selected_param.split():
             node = int(node_str)
             self.node_selected.append(node)
@@ -175,9 +180,10 @@ class DecenterFMSManager(RComponent):
 
     def object_detector_cb(self, msg):
         '''
-    		Callback object_detector_cb (rostopic pub /object_detector_mqtt_msg decenter_msgs/ObjectDetector )
-    	'''
-        rospy.logdebug(
+            Callback object_detector_cb (rostopic pub /object_detector_mqtt_msg decenter_msgs/ObjectDetector )
+        '''
+        # rospy.logdebug(
+        rospy.loginfo(
             'object_detector_cb received:: %s' % msg
         )
 
