@@ -215,6 +215,11 @@ class DecenterFMSManager(RComponent):
             lambda obj: obj.get('id') == int(msg.metadata.robot_id),
             self.robots
         )
+        if not self.send_pictures_enabled:
+            rospy.logwarn(
+                'Sending picture is not enabled, doing nothing'
+            )
+            return
         robot_enable_service = robot_data[0]['enable_service']
         self.robot_enable_service = robot_enable_service
         self.enable_send_pictures(
