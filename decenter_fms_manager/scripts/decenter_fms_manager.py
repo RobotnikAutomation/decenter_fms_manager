@@ -30,17 +30,27 @@ class DecenterFMSManager(RComponent):
         self.robot_in_mission = False
         self.robot_id_enable_node = -1
         self.node_enable_wait_time = 15
-        self.img_enable_wait_time = 30
+        #self.img_enable_wait_time = 300
         self.robot_enable_service = []
+        self.send_pictures_enabled = True
 
     def rosReadParams(self):
 
         """Gets params from param server"""
         RComponent.rosReadParams(self)
 
-        self.node_selected_param = rospy.get_param(
-            'node_selected',
-            default="6"
+        self.img_enable_wait_time = rospy.get_param(
+            'img_enable_wait_time',
+            default="301"
+        )
+
+        rospy.loginfo(
+            "Image cooldown time: " +
+            str(self.img_enable_wait_time)
+        )
+        self.nodes_selected_param = rospy.get_param(
+            'nodes_selected',
+            default="101 102"
         )
         self.lights_service_param = rospy.get_param(
             'lights_service_name',
@@ -48,8 +58,18 @@ class DecenterFMSManager(RComponent):
         )
 
         self.node_selected = []
-        self.node_selected.append(self.node_selected_param)
-        self.node_selected.append(7)
+        rospy.loginfo(
+            "Nodes param: " +
+            self.nodes_selected_param
+        )
+
+        for node_str in self.nodes_selected_param.split():
+            node = int(node_str)
+            self.node_selected.append(node)
+            rospy.loginfo(
+                "Node to block: " +
+                node_str
+            )
         print(self.node_selected)
         robot_param = rospy.get_name()
         robot_param += "/robots"
@@ -139,7 +159,14 @@ class DecenterFMSManager(RComponent):
         return RComponent.switchToState(self, new_state)
 
     def enable_send_pictures(self, enable, service):
-        rospy.wait_for_service( service )
+        rospy.loginfo('Waiting for service')
+        self.send_pictures_enabled = enable
+        try:
+            rospy.wait_for_service(service, 10.0)
+        except rospy.ServiceException as e:
+            rospy.loginfo("Service wait timeout: %s" % e)
+            return False
+
         try:
             self._enable_service = rospy.ServiceProxy(
                 name=service,
@@ -170,9 +197,10 @@ class DecenterFMSManager(RComponent):
 
     def object_detector_cb(self, msg):
         '''
-    		Callback object_detector_cb (rostopic pub /object_detector_mqtt_msg decenter_msgs/ObjectDetector )
-    	'''
-        rospy.logdebug(
+            Callback object_detector_cb (rostopic pub /object_detector_mqtt_msg decenter_msgs/ObjectDetector )
+        '''
+        # rospy.logdebug(
+        rospy.loginfo(
             'object_detector_cb received:: %s' % msg
         )
 
@@ -187,6 +215,11 @@ class DecenterFMSManager(RComponent):
             lambda obj: obj.get('id') == int(msg.metadata.robot_id),
             self.robots
         )
+        if not self.send_pictures_enabled:
+            rospy.logwarn(
+                'Sending picture is not enabled, doing nothing'
+            )
+            return
         robot_enable_service = robot_data[0]['enable_service']
         self.robot_enable_service = robot_enable_service
         self.enable_send_pictures(
@@ -509,7 +542,7 @@ class DecenterFMSManager(RComponent):
 
     def clear_light_indicator(
             self,
-            robot_prefix='rb1_base',
+            robot_prefix='robot_0/rb1_base',
             service_name='leds_driver/clear_signals',
     ):
         full_service_name = '/'
@@ -651,7 +684,7 @@ class DecenterFMSManager(RComponent):
 
         rospy.loginfo('Enabling light signals')
         light_response = self.manage_ligths(
-            robot_prefix='rb1_base',
+            robot_prefix='robot_0/rb1_base',
             service_name='leds_driver/set_signal',
             signal='reroute',
             enable=True,
@@ -668,7 +701,7 @@ class DecenterFMSManager(RComponent):
 
         rospy.loginfo('Enabling light signals')
         light_response = self.manage_ligths(
-            robot_prefix='rb1_base',
+            robot_prefix='robot_0/rb1_base',
             service_name='leds_driver/set_signal',
             signal='reroute',
             enable=True,
@@ -691,7 +724,7 @@ class DecenterFMSManager(RComponent):
 
         # rospy.loginfo('Enabling light signals')
         light_response = self.manage_ligths(
-            robot_prefix='rb1_base',
+            robot_prefix='robot_0/rb1_base',
             service_name='leds_driver/set_signal',
             signal='obstacle',
             enable=True,
@@ -703,7 +736,7 @@ class DecenterFMSManager(RComponent):
 
         # rospy.loginfo('Enabling sound signals')
         sound_response = self.manage_buzzer(
-            robot_prefix='rb1_base',
+            robot_prefix='robot_0/rb1_base',
             service_name='robotnik_base_hw/set_digital_output',
             digital_ouput=1,
             period=0.5,
@@ -730,7 +763,7 @@ class DecenterFMSManager(RComponent):
 
         # rospy.loginfo('Enabling light signals')
         light_response = self.manage_ligths(
-            robot_prefix='rb1_base',
+            robot_prefix='robot_0/rb1_base',
             service_name='leds_driver/set_signal',
             signal='robot',
             enable=True,
@@ -742,7 +775,7 @@ class DecenterFMSManager(RComponent):
 
         # rospy.loginfo('Enabling sound signals')
         sound_response = self.manage_buzzer(
-            robot_prefix='rb1_base',
+            robot_prefix='robot_0/rb1_base',
             service_name='robotnik_base_hw/set_digital_output',
             digital_ouput=1,
             period=1.0,
@@ -770,7 +803,7 @@ class DecenterFMSManager(RComponent):
 
         # rospy.loginfo('Enabling light signals')
         light_response = self.manage_ligths(
-            robot_prefix='rb1_base',
+            robot_prefix='robot_0/rb1_base',
             service_name='leds_driver/set_signal',
             signal='emergency',
             enable=True,
@@ -782,7 +815,7 @@ class DecenterFMSManager(RComponent):
 
         # rospy.loginfo('Enabling sound signals')
         sound_response = self.manage_buzzer(
-            robot_prefix='rb1_base',
+            robot_prefix='robot_0/rb1_base',
             service_name='robotnik_base_hw/set_digital_output',
             digital_ouput=1,
             period=0.5,

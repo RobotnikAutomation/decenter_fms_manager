@@ -13,7 +13,8 @@ Manager between Decenter module and Robotnik FMS
 
 | Variable         | Default                         | Meaning               |
 | ---------------- | ------------------------------- | --------------------- |
-| `NODE_SELECTED`  | *2*                             | Node to disable       |
+| `NODES_SELECTED`  | *203 403*                             | Nodes to disable       |
+| `IMG_ENABLE_WAIT_TIME` | *120*                           | Time without AI image processing and replanning |
 | `MQTT_HOST`      | *localhost*                     | mqtt broker hostname  |
 | `MQTT_PORT`      | *1883*                          | mqtt broker port      |
 | `MQTT_PROTOCOL`  | *4*                             | mqtt protocol version |
