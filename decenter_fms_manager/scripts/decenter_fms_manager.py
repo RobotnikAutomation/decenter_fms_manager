@@ -514,7 +514,7 @@ class DecenterFMSManager(RComponent):
 
     def clear_light_indicator(
             self,
-            robot_prefix='rb1_base',
+            robot_prefix='robot_0/rb1_base',
             service_name='leds_driver/clear_signals',
     ):
         full_service_name = '/'
@@ -656,7 +656,7 @@ class DecenterFMSManager(RComponent):
 
         rospy.loginfo('Enabling light signals')
         light_response = self.manage_ligths(
-            robot_prefix='rb1_base',
+            robot_prefix='robot_0/rb1_base',
             service_name='leds_driver/set_signal',
             signal='reroute',
             enable=True,
@@ -673,7 +673,7 @@ class DecenterFMSManager(RComponent):
 
         rospy.loginfo('Enabling light signals')
         light_response = self.manage_ligths(
-            robot_prefix='rb1_base',
+            robot_prefix='robot_0/rb1_base',
             service_name='leds_driver/set_signal',
             signal='reroute',
             enable=True,
@@ -696,7 +696,7 @@ class DecenterFMSManager(RComponent):
 
         # rospy.loginfo('Enabling light signals')
         light_response = self.manage_ligths(
-            robot_prefix='rb1_base',
+            robot_prefix='robot_0/rb1_base',
             service_name='leds_driver/set_signal',
             signal='obstacle',
             enable=True,
@@ -708,7 +708,7 @@ class DecenterFMSManager(RComponent):
 
         # rospy.loginfo('Enabling sound signals')
         sound_response = self.manage_buzzer(
-            robot_prefix='rb1_base',
+            robot_prefix='robot_0/rb1_base',
             service_name='robotnik_base_hw/set_digital_output',
             digital_ouput=1,
             period=0.5,
@@ -735,7 +735,7 @@ class DecenterFMSManager(RComponent):
 
         # rospy.loginfo('Enabling light signals')
         light_response = self.manage_ligths(
-            robot_prefix='rb1_base',
+            robot_prefix='robot_0/rb1_base',
             service_name='leds_driver/set_signal',
             signal='robot',
             enable=True,
@@ -747,7 +747,7 @@ class DecenterFMSManager(RComponent):
 
         # rospy.loginfo('Enabling sound signals')
         sound_response = self.manage_buzzer(
-            robot_prefix='rb1_base',
+            robot_prefix='robot_0/rb1_base',
             service_name='robotnik_base_hw/set_digital_output',
             digital_ouput=1,
             period=1.0,
@@ -775,7 +775,7 @@ class DecenterFMSManager(RComponent):
 
         # rospy.loginfo('Enabling light signals')
         light_response = self.manage_ligths(
-            robot_prefix='rb1_base',
+            robot_prefix='robot_0/rb1_base',
             service_name='leds_driver/set_signal',
             signal='emergency',
             enable=True,
@@ -787,7 +787,7 @@ class DecenterFMSManager(RComponent):
 
         # rospy.loginfo('Enabling sound signals')
         sound_response = self.manage_buzzer(
-            robot_prefix='rb1_base',
+            robot_prefix='robot_0/rb1_base',
             service_name='robotnik_base_hw/set_digital_output',
             digital_ouput=1,
             period=0.5,
