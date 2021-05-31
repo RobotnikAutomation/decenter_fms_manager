@@ -6,17 +6,25 @@
         name="nodes_selected"
         default="$(optenv NODES_SELECTED '203 403')"
     />
+    <!-- Image re-enable wait time -->
+    <arg
+        name="img_enable_wait_time"
+        default="$(optenv IMG_ENABLE_WAIT_TIME 120)"
+    />
     <!-- Light service parameters -->
     <arg
         name="lights_service_name"
         default="$(optenv LIGHT_SERVICE_NAME '/gazebo/set_light_properties')"
-        />
+    />
     <param
         name='lights_service_name'
         type="string"
         value="$(arg lights_service_name)"
     />
-
+    <param
+        name="img_enable_wait_time"
+        value="$(arg img_enable_wait_time)"
+    />
     <param
         name='nodes_selected'
         type="string"

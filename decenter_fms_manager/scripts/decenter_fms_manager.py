@@ -30,14 +30,24 @@ class DecenterFMSManager(RComponent):
         self.robot_in_mission = False
         self.robot_id_enable_node = -1
         self.node_enable_wait_time = 15
-        self.img_enable_wait_time = 30
+        #self.img_enable_wait_time = 300
         self.robot_enable_service = []
+        self.send_pictures_enabled = True
 
     def rosReadParams(self):
 
         """Gets params from param server"""
         RComponent.rosReadParams(self)
 
+        self.img_enable_wait_time = rospy.get_param(
+            'img_enable_wait_time',
+            default="301"
+        )
+
+        rospy.loginfo(
+            "Image cooldown time: " +
+            str(self.img_enable_wait_time)
+        )
         self.nodes_selected_param = rospy.get_param(
             'nodes_selected',
             default="101 102"
