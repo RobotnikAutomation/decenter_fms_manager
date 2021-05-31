@@ -159,7 +159,14 @@ class DecenterFMSManager(RComponent):
         return RComponent.switchToState(self, new_state)
 
     def enable_send_pictures(self, enable, service):
-        rospy.wait_for_service( service )
+        rospy.loginfo('Waiting for service')
+        self.send_pictures_enabled = enable
+        try:
+            rospy.wait_for_service(service, 10.0)
+        except rospy.ServiceException as e:
+            rospy.loginfo("Service wait timeout: %s" % e)
+            return False
+
         try:
             self._enable_service = rospy.ServiceProxy(
                 name=service,
